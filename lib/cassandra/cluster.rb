@@ -275,7 +275,18 @@ module Cassandra
     #
     # @see Cassandra::Cluster#connect_async
     def connect(keyspace = nil)
-      connect_async(keyspace).get
+      tries = 0
+      begin
+        return connect_async(keyspace).get(60)
+      rescue Errors::TimeoutError => e
+        if tries < 10
+          tries = tries + 1
+          @logger.warn("unable to connect, attempt #{tries} of 10")
+          retry
+        end
+        @logger.error("unable to connect, last attempt")
+        raise e
+      end
     end
 
     # Asynchronously closes all sessions managed by this cluster
