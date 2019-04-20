@@ -278,7 +278,7 @@ module Cassandra
       tries = 0
       begin
         return connect_async(keyspace).get(60)
-      rescue Errors::TimeoutError => e
+      rescue Cassandra::Errors::TimeoutError => e
         if tries < 10
           tries = tries + 1
           @logger.warn("unable to connect, attempt #{tries} of 10")
